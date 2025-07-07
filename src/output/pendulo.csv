@@ -1,0 +1,19 @@
+Executando analise comparativa...
+Arquivo 'analise_completa.csv' gerado com sucesso.
+Executando Análise de Desempenho para 10 Períodos...
+--- Análise de Tempo para 10 Períodos (theta0 = 1.00) ---
+method,h,steps,time_s
+constant,0.0100,2140,0.000150
+constant,0.0010,21392,0.001799
+constant,0.0001,213914,0.018099
+adaptive,0.0100,212,0.000073
+
+Procurando ângulo para erro < 0.001...
+T_analitico = 2.00606668
+theta0 = 0.1000, T_num = 2.00729479, Erro = 0.00122811
+theta0 = 0.0950, T_num = 2.00725347, Erro = 0.00118679
+theta0 = 0.0900, T_num = 2.00703653, Erro = 0.00096985
+--> Encontrado! Ângulo máximo aproximado para erro < 0.0010 é 0.0900 rad.
+
+Gerando arquivos de dados para gráficos...
+Arquivos de dados gerados.
