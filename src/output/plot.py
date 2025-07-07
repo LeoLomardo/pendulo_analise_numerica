@@ -2,63 +2,79 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import glob
 import os
+import numpy as np # Importa a biblioteca NumPy
+
+G = 9.81  # Aceleração da gravidade (m/s^2)
+L = 1.0   # Comprimento do pêndulo (m)
 
 # Define a pasta onde o script está rodando como a pasta de trabalho
-# Isso garante que ele encontrará os arquivos CSV no mesmo diretório
 script_dir = os.path.dirname(os.path.abspath(__file__))
-os.chdir(script_dir)
+if script_dir:
+    os.chdir(script_dir)
 
-# 1. Encontra todos os arquivos CSV que começam com "plot_" no diretório atual
+# Cria a pasta 'graficos' se ela não existir
+if not os.path.exists('graficos'):
+    os.makedirs('graficos')
+
+# Encontra todos os arquivos CSV que começam com "plot_" no diretório atual
+# O padrão foi melhorado para ser mais específico
 csv_files = glob.glob('plot_*.csv')
 
-# Verifica se algum arquivo foi encontrado
 if not csv_files:
     print("Nenhum arquivo CSV com o padrão 'plot_*.csv' foi encontrado.")
-    print("Certifique-se de que este script está na mesma pasta que os seus arquivos de dados.")
 else:
     print(f"Encontrados {len(csv_files)} arquivos CSV para processar...")
 
-# 2. Faz um laço (loop) em cada nome de arquivo encontrado
+# Loop em cada nome de arquivo encontrado
 for file_path in csv_files:
     try:
-        # Extrai o nome base do arquivo para usar nos títulos e nomes de saída
         base_filename = os.path.basename(file_path)
         
-        # 3. Lê o arquivo CSV atual
+        # Lê o arquivo CSV
         data = pd.read_csv(file_path)
         
-        # Verifica se as colunas 't' e 'theta' existem
         if 't' not in data.columns or 'theta' not in data.columns:
-            print(f"AVISO: O arquivo '{base_filename}' não contém as colunas 't' e 'theta'. Pulando.")
+            print(f"AVISO: Arquivo '{base_filename}' não tem colunas 't' e 'theta'. Pulando.")
             continue
 
-        # Extrai os dados das colunas
-        t_data = data['t']
-        theta_data = data['theta']
 
-        # 4. Cria uma NOVA figura para cada gráfico. Isso é importante!
+        # 1. Extrai theta0 do nome do arquivo
+        # Ex: de "plot_const_theta_1.0.csv", extrai "1.0"
+        try:
+            theta0_str = base_filename.split('theta_')[1].replace('.csv', '')
+            theta0 = float(theta0_str)
+        except (IndexError, ValueError):
+            print(f"AVISO: Não foi possível extrair theta0 do nome do arquivo '{base_filename}'. Pulando.")
+            continue
+            
+        # 2. Pega os dados do CSV (solução numérica)
+        t_numerical = data['t']
+        theta_numerical = data['theta']
+
+        # 3. Calcula a solução analítica usando o tempo da solução numérica
+        omega_analytical = np.sqrt(G / L)
+        theta_analytical = theta0 * np.cos(omega_analytical * t_numerical)
+
+        # 4. Cria a figura e os eixos para o plot
         fig, ax = plt.subplots(figsize=(12, 7))
 
-        # Plota os dados do arquivo atual
-        ax.plot(t_data, theta_data, label=f'Ângulo (rad)')
+        # 5. Plota AMBAS as soluções
+        ax.plot(t_numerical, theta_numerical, label='Solução Numérica', color='blue', linewidth=2)
+        ax.plot(t_numerical, theta_analytical, label='Solução Analítica Aproximada', color='red', linestyle='--')
         
-        # 5. Adiciona títulos e legendas, usando o nome do arquivo para identificar o gráfico
-        ax.set_title(f'Gráfico do Pêndulo - {base_filename}')
+        # 6. Adiciona títulos e legendas
+        ax.set_title(f'Comparação para θ₀ = {theta0} rad')
         ax.set_xlabel('Tempo (s)')
-        ax.set_ylabel('Ângulo (radianos)')
+        ax.set_ylabel('Ângulo θ (radianos)')
         ax.legend()
         ax.grid(True)
 
-        # 6. Cria um nome de arquivo de saída dinâmico e salva o gráfico
-        output_filename = f"graficos/grafico_{base_filename.replace('.csv', '.png')}"
+        # 7. Salva o gráfico combinado
+        output_filename = f"graficos/comparacao_{base_filename.replace('.csv', '.png')}"
         plt.savefig(output_filename)
-        
-        # 7. Fecha a figura para liberar memória antes de ir para o próximo arquivo
         plt.close(fig)
-        
-        print(f"-> Gráfico gerado com sucesso: '{output_filename}'")
-        
+
     except Exception as e:
         print(f"Ocorreu um erro ao processar o arquivo {file_path}: {e}")
 
-print("\nProcessamento concluído.")
+print("Processamento de gráficos concluído.")

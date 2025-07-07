@@ -3,10 +3,10 @@ Arquivo 'analise_completa.csv' gerado com sucesso.
 Executando Análise de Desempenho para 10 Períodos...
 --- Análise de Tempo para 10 Períodos (theta0 = 1.00) ---
 method,h,steps,time_s
-constant,0.0100,2140,0.000150
-constant,0.0010,21392,0.001799
-constant,0.0001,213914,0.018099
-adaptive,0.0100,212,0.000073
+constant,0.0100,2140,0.000183
+constant,0.0010,21392,0.001587
+constant,0.0001,213914,0.014863
+adaptive,0.0100,212,0.000067
 
 Procurando ângulo para erro < 0.001...
 T_analitico = 2.00606668
